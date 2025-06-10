@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { BarChart3, Download, TrendingUp, PieChart, Calendar } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart as RechartsPieChart, Pie, Cell, LineChart, Line, Area, AreaChart } from 'recharts';
+import * as XLSX from 'xlsx';
 
 const filingsByYear = [
   { year: '2020', patents: 1200 },
@@ -42,6 +43,24 @@ const monthlyTrends = [
   { month: 'Dec', filed: 220, granted: 170 },
 ];
 
+const handleExportReport = () => {
+  // Prepare data for export
+  const filingsSheet = XLSX.utils.json_to_sheet(filingsByYear);
+  const categoriesSheet = XLSX.utils.json_to_sheet(topCategories);
+  const geoSheet = XLSX.utils.json_to_sheet(geographicDistribution);
+  const monthlySheet = XLSX.utils.json_to_sheet(monthlyTrends);
+
+  // Create a new workbook and append sheets
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, filingsSheet, 'FilingsByYear');
+  XLSX.utils.book_append_sheet(wb, categoriesSheet, 'TopCategories');
+  XLSX.utils.book_append_sheet(wb, geoSheet, 'GeographicDistribution');
+  XLSX.utils.book_append_sheet(wb, monthlySheet, 'MonthlyTrends');
+
+  // Export to Excel file
+  XLSX.writeFile(wb, 'analytics_report.xlsx');
+};
+
 const Analytics: React.FC = () => {
   return (
     <div className="space-y-6">
@@ -54,7 +73,7 @@ const Analytics: React.FC = () => {
           <h1 className="text-3xl font-bold text-gray-900">Analytics Dashboard</h1>
           <p className="text-gray-600 mt-2">Comprehensive insights into patent filing trends and patterns.</p>
         </div>
-        <button className="flex items-center space-x-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
+        <button onClick={handleExportReport} className="flex items-center space-x-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
           <Download className="h-4 w-4" />
           <span>Export Report</span>
         </button>
